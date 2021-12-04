@@ -14,8 +14,7 @@
     "@types/websocket": "^1.0.4",
     "request": "^2.88.2",
     "ts-node": "^10.4.0",
-    "websocket": "^1.0.34",
-    "websocket-ts": "^1.1.1"
+    "websocket": "^1.0.34"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.28.1",
