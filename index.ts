@@ -1,16 +1,50 @@
 import request from 'request'
+import { client } from 'websocket'
+let mirrativ: Mirrativ
 
 const url =
   'https://www.mirrativ.com/api/live/live?live_id=' +
   process.argv[2].split(/\//)[4]
-
 request({ method: 'GET', url: url }, function (error, response, body) {
   if (!error && response.statusCode === 200) {
-    const mirrativ = JSON.parse(body) as Mirrativ
+    mirrativ = JSON.parse(body) as Mirrativ
     console.log(mirrativ.title)
     console.log(mirrativ.owner.name)
     console.log(mirrativ.broadcast_host)
     console.log(mirrativ.broadcast_key)
+    console.log('-------------------------------')
+
+    const socket = new client()
+    socket.on('connectFailed', function (error) {
+      console.log('Connect Error: ' + error.toString())
+    })
+    socket.on('connect', function (connection) {
+      connection.on('message', function (msg) {
+        if (msg.type === 'utf8') {
+          if (msg.utf8Data === 'ACK  ') return
+          const msgJson = /{.*?$/.exec(msg.utf8Data)
+          if (msgJson === null) return
+          const message = JSON.parse(msgJson[0]) as Comment
+          if (message.ac === undefined || message.cm === undefined) return
+          console.log(message.ac + ':' + message.cm)
+        }
+      })
+
+      function sendPing() {
+        if (connection.connected) {
+          connection.sendUTF('PING')
+          setTimeout(sendPing, 60000)
+        }
+      }
+      function sendsub() {
+        if (connection.connected) {
+          connection.sendUTF('SUB	' + mirrativ.broadcast_key)
+        }
+      }
+      sendPing()
+      sendsub()
+    })
+    socket.connect('wss://online.mirrativ.com/')
   }
 })
 
@@ -139,4 +173,30 @@ interface Mirrativ {
   image_url: string
   collab_invitation: null | any
   orientation_v2: string
+}
+
+interface Comment {
+  ac: string | undefined
+  burl: string | undefined
+  cm: string | undefined
+  created_at: number | undefined
+  d: number | undefined
+  is_cheerleader: number | undefined
+  is_moderator: number | undefined
+  iurl: string | undefined
+  lci: number | undefined
+  push_image_url: string | undefined
+  speech: string | undefined
+  t: number
+  u: string | undefined
+  users:
+    | [
+        {
+          ac: string
+          burl: string
+          iurl: string
+          u: string
+        }
+      ]
+    | undefined
 }
