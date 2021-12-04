@@ -1,0 +1,28 @@
+{
+  "name": "sync-schedule",
+  "version": "0.1.0",
+  "main": "index.ts",
+  "scripts": {
+    "start": "ts-node -r tsconfig-paths/register index.ts",
+    "lint": "eslint ."
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "dependencies": {
+    "@types/request": "^2.48.7",
+    "fs": "^0.0.1-security",
+    "request": "^2.88.2",
+    "ts-node": "^10.4.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.28.1",
+    "@typescript-eslint/parser": "^4.28.1",
+    "eslint": "^7.29.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "prettier": "^2.3.2",
+    "tsconfig-paths": "^3.9.0"
+  }
+}
