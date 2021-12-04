@@ -8,10 +8,16 @@ const url =
 request({ method: 'GET', url: url }, function (error, response, body) {
   if (!error && response.statusCode === 200) {
     mirrativ = JSON.parse(body) as Mirrativ
-    console.log(mirrativ.title)
-    console.log(mirrativ.owner.name)
-    console.log(mirrativ.broadcast_host)
-    console.log(mirrativ.broadcast_key)
+    console.log('配信タイトル:' + mirrativ.title)
+    console.log(
+      '配信メモ:\n> ' +
+        (mirrativ.description
+          ? mirrativ.description.replace(/\n/g, '\n> ')
+          : 'NULL')
+    )
+    console.log('配信者:' + mirrativ.owner.name)
+    console.log('配信者自己紹介:' + mirrativ.owner.description)
+
     console.log('-------------------------------')
 
     const socket = new client()
@@ -23,9 +29,9 @@ request({ method: 'GET', url: url }, function (error, response, body) {
         if (msg.type === 'utf8') {
           if (msg.utf8Data === 'ACK  ') return
           const msgJson = /{.*?$/.exec(msg.utf8Data)
-          if (msgJson === null) return
+          if (!msgJson) return
           const message = JSON.parse(msgJson[0]) as Comment
-          if (message.ac === undefined || message.cm === undefined) return
+          if (!message.ac || !message.cm) return
           console.log(message.ac + ':' + message.cm)
         }
       })
