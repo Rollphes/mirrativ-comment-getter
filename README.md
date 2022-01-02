@@ -3,8 +3,8 @@
 This is a comment viewer for Mirrativ
 
 ```javascript
-const { Mirrativ } = require("mirrativ-comment-viewer");
-const client = new Mirrativ();
+const { Client } = require("mirrativ-comment-viewer");
+const client = new Client();
 client.on("comment", (msg) => {
   console.log(msg);
 });
