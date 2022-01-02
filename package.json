@@ -1,9 +1,12 @@
 {
   "name": "mirrativ-comment-viewer",
-  "version": "0.1.1",
-  "main": "index.ts",
+  "version": "0.1.2",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "author": "rollphes",
   "scripts": {
-    "start": "ts-node -r tsconfig-paths/register index.ts",
+    "build": "tsc",
+    "prepare": "npm run build",
     "lint": "eslint ."
   },
   "engines": {
@@ -15,6 +18,8 @@
     "events": "^3.3.0",
     "request": "^2.88.2",
     "ts-node": "^10.4.0",
+    "tsc": "^2.0.3",
+    "typescript": "^4.5.4",
     "websocket": "^1.0.34"
   },
   "devDependencies": {
@@ -25,8 +30,6 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "prettier": "^2.3.2",
-    "tsc": "^2.0.3",
-    "tsconfig-paths": "^3.9.0",
-    "typescript": "^4.5.4"
+    "tsconfig-paths": "^3.9.0"
   }
 }
