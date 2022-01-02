@@ -1,28 +1,57 @@
+import EventEmitter from 'events'
 import request from 'request'
 import { client } from 'websocket'
-let mirrativ: Mirrativ
+const socket = new client()
 
-const url =
-  'https://www.mirrativ.com/api/live/live?live_id=' +
-  process.argv[2].split(/[\/|?]/)[4]
-request({ method: 'GET', url: url }, function (error, response, body) {
-  if (!error && response.statusCode === 200) {
-    mirrativ = JSON.parse(body) as Mirrativ
-    console.log('配信タイトル:' + mirrativ.title)
-    console.log(
-      '配信メモ:\n> ' +
-        (mirrativ.description
-          ? mirrativ.description.replace(/\n/g, '\n> ')
-          : 'NULL')
-    )
-    console.log('配信者:' + mirrativ.owner.name)
-    console.log('配信者自己紹介:' + mirrativ.owner.description)
-
-    console.log('-------------------------------')
-
-    const socket = new client()
+export default class Mirrativ extends EventEmitter {
+  broadcast_key?: string
+  live_id?: string
+  image_url?: string
+  share_url?: string
+  description?: string
+  title?: string
+  total_viewer_num?: number
+  started_at?: number
+  app?: {
+    app_id?: string
+    app_user_detail?: {
+      name: string | null
+      url: string | null
+      user_id: string | null
+    }
+    app_user_id_label?: string
+    icon_url?: string
+    store_url?: string
+    title?: string
+  }
+  owner?: {
+    birthday?: string
+    description?: string
+    name: string
+    profile_image_url?: string
+    share_url: string
+    twitter_screen_name?: string
+    user_id: string
+  }
+  constructor(url: string) {
+    super()
+  }
+  async start(url: string) {
+    const body = await rqt(url)
+    const mirrativ = JSON.parse(body) as MirrativTypes
+    this.app = mirrativ.app
+    this.owner = mirrativ.owner
+    this.broadcast_key = mirrativ.broadcast_key
+    this.live_id = mirrativ.live_id
+    this.image_url = mirrativ.image_url
+    this.share_url = mirrativ.share_url
+    this.description = mirrativ.description
+    this.title = mirrativ.title
+    this.total_viewer_num = mirrativ.total_viewer_num
+    this.started_at = mirrativ.started_at
+    const this0 = this
     socket.on('connectFailed', function (error) {
-      console.log('Connect Error: ' + error.toString())
+      throw new Error('Connect Error: ' + error.toString())
     })
     socket.on('connect', function (connection) {
       connection.on('message', function (msg) {
@@ -30,179 +59,129 @@ request({ method: 'GET', url: url }, function (error, response, body) {
           if (msg.utf8Data === 'ACK  ') return
           const msgJson = /{.*?$/.exec(msg.utf8Data)
           if (!msgJson) return
-          const message = JSON.parse(msgJson[0]) as Comment
-          if (!message.ac || !message.cm) return
-          console.log(message.ac + ':' + message.cm)
+          const message = JSON.parse(msgJson[0]) as CommentOld | GiftOld
+          if (message.t === 1) {
+            this0.emit('comment', new Comment(message))
+          }
+          if (message.t === 35) {
+            this0.emit('gift', message)
+          }
         }
       })
-
-      function sendPing() {
-        if (connection.connected) {
-          connection.sendUTF('PING')
-          setTimeout(sendPing, 60000)
-        }
-      }
-      function sendsub() {
-        if (connection.connected) {
-          connection.sendUTF('SUB	' + mirrativ.broadcast_key)
-        }
-      }
-      sendPing()
-      sendsub()
+      setInterval(() => connection.sendUTF('PING'), 60000)
+      connection.sendUTF('SUB	' + mirrativ.broadcast_key)
     })
     socket.connect('wss://online.mirrativ.com/')
   }
-})
-
-interface Mirrativ {
-  avatar_body_image_url: string | null
-  streaming_url_hls: string | null
-  is_streaming_collab_enabled: number
-  is_gift_supported: number
-  mirroring: null
-  live_id: string
-  is_mirrorable: number
-  app_title: string
-  description: string | null
-  total_viewer_num: number
-  thumbnail_image_url: string | null
-  is_archive: number
-  is_singing_karaoke: number
-  title: string
-  max_online_viewer_num: number
-  is_emomo_visible: boolean
-  created_at: number
-  is_live: number
-  started_at: number
-  blur_image_url: string
-  preview_blur_image_url: string | null
-  live_mos: null
-  image_url_without_letterbox: string | null
-  thumbnail_blur_image_url: string | null
-  user_level: any
-  is_connected_streaming_collab: number
-  diamonds: number
-  joined_live_thumbnail_image_url: string
-  template_comments: any
-  tags: any
-  broadcast_host: string
-  live_user_key: string | null
-  app_user_id_label: string
-  bcsvr_key: string
-  heartbeated_at: number
-  shares: {
-    twitter: {
-      maxlength: number
-      card: any
-      text: string | null
-      placeholder: string
-    }
-    others: {
-      text: string
-    }
-    title: string
-    description: string
-  }
-  is_private: number
-  collab_supported: number
-  sticker_enabled: number
-  collab_has_vacancy: number
-  streaming_key: string
-  stamp_num: number
-  linked_live: null | any
-  collab_online_user_num: number
-  remaining_paid_coins: number
-  share_image_url: string
-  broadcast_key: string
-  gift_ranking_url: string
-  collab_mos: null | any
-  remaining_coins: number
-  archive_url_hls: string | null
-  sticker_category_ids: any
-  ended_at: number
-  online_user_num: number
-  announcement_url: string | null
-  anniversary_bot_comment: string | null
-  is_emomo_wipe_enabled: number
-  share_url: string
-  status: {
-    msg: string | null
-    ok: number
-    error: string | null
-    captcha_url: string | null
-    error_code: number
-    message: string | null
-  }
-  orientation: number
-  is_app_user_id_hidden: number
-  app_id: string
-  app_is_category: number
-  timeline: [{ app: any; timestamp: number; title: string | null }]
-  app_icon_urls: string[]
-  enable_clap: number
-  remaining_free_coins: number
-  is_paid_sticker_supported: number
-  announcement_urls: {}
-  sticker_num: number
-  comment_num: number
-  max_collab_user_num: number
-  app_short_title: string | null
-  owner: {
-    share_url: string
-    profile_image_url: string
-    birthday_from: number
-    is_birthday_editable: number
-    badges: any
-    is_new: number
-    is_cheerleader: number
-    catalog_label_image_url: string
-    birthday: string | null
-    birthday_to: number
-    name: string
-    is_birthday: number
-    description: string
-    birthday_editable_date: string | null
-    properties: any
-    is_continuous_streamer: number
-    user_id: string
-    live_request_num: string
-    onlive: null | any
-  }
-  recommend_sticker_ids: any
-  broadcast_port: number
-  sticker_display_type: number
-  archive_comment_enabled: number
-  streaming_url_edge: string
-  user_label_image_url: string
-  collab_enabled: number
-  gift_appeal_popup_image: null | any
-  image_url: string
-  collab_invitation: null | any
-  orientation_v2: string
 }
 
-interface Comment {
-  ac: string | undefined
-  burl: string | undefined
-  cm: string | undefined
-  created_at: number | undefined
-  d: number | undefined
-  is_cheerleader: number | undefined
-  is_moderator: number | undefined
-  iurl: string | undefined
-  lci: number | undefined
-  push_image_url: string | undefined
-  speech: string | undefined
+interface MirrativTypes {
+  broadcast_key: string
+  live_id: string
+  image_url?: string
+  share_url: string
+  description?: string
+  title: string
+  total_viewer_num: number
+  started_at: number
+  app: {
+    app_id?: string
+    app_user_detail?: {
+      name: string | null
+      url: string | null
+      user_id: string | null
+    }
+    app_user_id_label?: string
+    icon_url?: string
+    store_url?: string
+    title?: string
+  }
+  owner: {
+    birthday?: string
+    description?: string
+    name: string
+    profile_image_url?: string
+    share_url: string
+    twitter_screen_name?: string
+    user_id: string
+  }
+}
+
+interface CommentOld {
+  ac?: string
+  cm?: string
+  created_at?: number
+  iurl?: string
+  speech?: string
+  u?: string
   t: number
-  u: string | undefined
-  users:
-    | [
-        {
-          ac: string
-          burl: string
-          iurl: string
-          u: string
-        }
-      ]
-    | undefined
+}
+
+interface GiftOld {
+  ac?: string
+  gift_title?: string
+  coins?: string
+  count?: string
+  speech?: string
+  iurl?: string
+  u?: string
+  t: number
+}
+
+class Comment {
+  userName?: string
+  comment?: string
+  createdAt?: number
+  iconUrl?: string
+  speech?: string
+  userId?: string
+  type: number
+  constructor(old: CommentOld) {
+    this.userName = old.ac
+    this.comment = old.cm
+    this.createdAt = old.created_at
+    this.iconUrl = old.iurl
+    this.speech = old.speech
+    this.userId = old.u
+    this.type = old.t
+  }
+}
+class Gift {
+  userName?: string
+  giftTitle?: string
+  coins?: string
+  count?: string
+  speech?: string
+  iconUrl?: string
+  userId?: string
+  type: number
+  constructor(old: GiftOld) {
+    this.userName = old.ac
+    this.giftTitle = old.gift_title
+    this.coins = old.coins
+    this.count = old.count
+    this.iconUrl = old.iurl
+    this.speech = old.speech
+    this.userId = old.u
+    this.type = old.t
+  }
+}
+
+interface Gift {
+  userName?: string
+  giftTitle?: string
+  coins?: string
+  count?: string
+  speech?: string
+  iconUrl?: string
+  userId?: string
+  type: number
+}
+
+function rqt(url: string): Promise<string> {
+  return new Promise<string>((resolve) => {
+    request({ method: 'GET', url: url }, (error, response, body) => {
+      resolve(body as string)
+    })
+  })
 }

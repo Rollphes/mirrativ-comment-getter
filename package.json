@@ -1,5 +1,5 @@
 {
-  "name": "sync-schedule",
+  "name": "mirrativ-comment-viewer",
   "version": "0.1.0",
   "main": "index.ts",
   "scripts": {
@@ -12,6 +12,7 @@
   "dependencies": {
     "@types/request": "^2.48.7",
     "@types/websocket": "^1.0.4",
+    "events": "^3.3.0",
     "request": "^2.88.2",
     "ts-node": "^10.4.0",
     "websocket": "^1.0.34"
@@ -24,6 +25,8 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "prettier": "^2.3.2",
-    "tsconfig-paths": "^3.9.0"
+    "tsc": "^2.0.3",
+    "tsconfig-paths": "^3.9.0",
+    "typescript": "^4.5.4"
   }
 }
