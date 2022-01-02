@@ -3,7 +3,7 @@ import request from 'request'
 import { client } from 'websocket'
 const socket = new client()
 
-export default class Mirrativ extends EventEmitter {
+export class Client extends EventEmitter {
   broadcast_key?: string
   live_id?: string
   image_url?: string
@@ -33,7 +33,7 @@ export default class Mirrativ extends EventEmitter {
     twitter_screen_name?: string
     user_id: string
   }
-  constructor(url: string) {
+  constructor() {
     super()
   }
   async start(url: string) {
@@ -66,7 +66,7 @@ export default class Mirrativ extends EventEmitter {
             this0.emit('comment', new Comment(message))
           }
           if (message.t === 35) {
-            this0.emit('gift', message)
+            this0.emit('gift', new Gift(message))
           }
         }
       })

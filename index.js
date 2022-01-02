@@ -12,12 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Client = void 0;
 const events_1 = __importDefault(require("events"));
 const request_1 = __importDefault(require("request"));
 const websocket_1 = require("websocket");
 const socket = new websocket_1.client();
-class Mirrativ extends events_1.default {
-    constructor(url) {
+class Client extends events_1.default {
+    constructor() {
         super();
     }
     start(url) {
@@ -51,7 +52,7 @@ class Mirrativ extends events_1.default {
                             this0.emit('comment', new Comment(message));
                         }
                         if (message.t === 35) {
-                            this0.emit('gift', message);
+                            this0.emit('gift', new Gift(message));
                         }
                     }
                 });
@@ -62,7 +63,7 @@ class Mirrativ extends events_1.default {
         });
     }
 }
-exports.default = Mirrativ;
+exports.Client = Client;
 class Comment {
     constructor(old) {
         this.userName = old.ac;

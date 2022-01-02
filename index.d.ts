@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import EventEmitter from 'events';
-export default class Mirrativ extends EventEmitter {
+export declare class Client extends EventEmitter {
     broadcast_key?: string;
     live_id?: string;
     image_url?: string;
@@ -30,6 +30,6 @@ export default class Mirrativ extends EventEmitter {
         twitter_screen_name?: string;
         user_id: string;
     };
-    constructor(url: string);
+    constructor();
     start(url: string): Promise<void>;
 }
