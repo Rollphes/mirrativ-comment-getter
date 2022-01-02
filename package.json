@@ -1,6 +1,6 @@
 {
   "name": "mirrativ-comment-viewer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "index.ts",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register index.ts",

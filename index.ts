@@ -37,7 +37,9 @@ export default class Mirrativ extends EventEmitter {
     super()
   }
   async start(url: string) {
-    const body = await rqt(url)
+    const body = await rqt(
+      'https://www.mirrativ.com/api/live/live?live_id=' + url.split(/[\/|?]/)[4]
+    )
     const mirrativ = JSON.parse(body) as MirrativTypes
     this.app = mirrativ.app
     this.owner = mirrativ.owner
