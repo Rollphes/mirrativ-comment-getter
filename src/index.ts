@@ -77,6 +77,12 @@ export class Client extends EventEmitter {
   }
 }
 
+export declare interface Client {
+  on(event: 'comment', listener: (comment: Comment) => void): this
+  on(event: 'gift', listener: (gift: Gift) => void): this
+  on(event: string, listener: Function): this
+}
+
 interface MirrativTypes {
   broadcast_key: string
   live_id: string
@@ -167,17 +173,6 @@ class Gift {
     this.userId = old.u
     this.type = old.t
   }
-}
-
-interface Gift {
-  userName?: string
-  giftTitle?: string
-  coins?: string
-  count?: string
-  speech?: string
-  iconUrl?: string
-  userId?: string
-  type: number
 }
 
 function rqt(url: string): Promise<string> {
