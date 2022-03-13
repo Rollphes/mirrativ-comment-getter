@@ -1,6 +1,6 @@
-# Mirrativ-Comment-Viewer
+# Mirrativ-Comment-Getter
 
-This is a comment viewer for Mirrativ
+This is a comment getter for Mirrativ
 
 ```javascript
 const { Client } = require("mirrativ-comment-viewer");
