@@ -1,5 +1,5 @@
 {
-  "name": "mirrativ-comment-viewer",
+  "name": "mirrativ-comment-getter",
   "version": "0.1.8",
   "main": "index.js",
   "types": "index.d.ts",

@@ -3,7 +3,7 @@
 This is a comment getter for Mirrativ
 
 ```javascript
-const { Client } = require("mirrativ-comment-viewer");
+const { Client } = require("mirrativ-comment-getter");
 const client = new Client();
 client.on("comment", (msg) => {
   console.log(msg);
